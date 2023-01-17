@@ -60,30 +60,16 @@ userApp.get("/data", async (request, res) => {
   //get data
   //send res
   userApp.use(requestIp.mw());
-  const clientIp = await request.clientIp;
-  let info = await ipfetch.getLocationNpm(clientIp);
-  
-  reqObj =
-  {
-      "country": info.country,
-      "region": info.region,
-      "regionName": info.regionName,
-      "city": info.city,
-      "zip": info.zip,
-      "lat": info.lat,
-      "lon": info.lon,
-      "org": info.org,
-      "as": info.as,
-      "query": info.query
-  }
-  try {
-      let response = await locationCollection.insertOne(reqObj);
-      
-  res.send({ message: "users data", payload: "191.451.12.12" })
-  } catch (e) {
-      console.log("error in insertion", e);
+  userApp.use(async(req, res) =>{
+      const clientIp = req.clientIp;
+      let info = await ipfetch.getLocationNpm(clientIp);
+    
+      await locationCollection.insertOne(reqObj);
       
   }
+  )
+
+
 });
 
 
@@ -169,4 +155,19 @@ try {
 } catch (err) {
   console.log("error in connecting mongoDB", err);
 }
+
+      
+  reqObj =
+  {
+      "country": info.country,
+      "region": info.region,
+      "regionName": info.regionName,
+      "city": info.city,
+      "zip": info.zip,
+      "lat": info.lat,
+      "lon": info.lon,
+      "org": info.org,
+      "as": info.as,
+      "query": info.query
+  }
 */

@@ -21,10 +21,15 @@ app.get("/", async(req, res) => {
 
     
   app.use(requestIp.mw());
-  const clientIp = await req.clientIp;
-res.send({message:clientIp})
-
+app.use(async(req, res) =>{
+    const clientIp = req.clientIp;
+      let info = await ipfetch.getLocationNpm(clientIp);
+        res.json({ip:info});
+}
+)
 });
+
+
 const port = 5000;
 app.listen(port, () => console.log("server on port 5000..."))
 
