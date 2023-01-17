@@ -2,7 +2,7 @@ const exp = require("express");
 const userApp = exp.Router();
 const mongoClient = require("mongodb").MongoClient;
 require('dotenv').config();
-const dbConnectionString = process.env.DATABASEURL
+const dbConnectionString = "mongodb+srv://madhu:madhu@clusterbackend.szevd.mongodb.net/myfirstdb?retryWrites=true&w=majority"
 let userCollectionObject;
 let dataCollectionObject;
 
