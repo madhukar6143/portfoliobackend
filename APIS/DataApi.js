@@ -1,7 +1,6 @@
 const exp = require("express");
 const userApp = exp.Router();
 const mongoClient = require("mongodb").MongoClient;
-require('dotenv').config();
 const dbConnectionString = "mongodb+srv://madhu:madhu@clusterbackend.szevd.mongodb.net/myfirstdb?retryWrites=true&w=majority"
 let userCollectionObject;
 let dataCollectionObject;
@@ -77,20 +76,21 @@ userApp.post("/track", async (request, response) => {
 
   //if date existed update
   if (userOfDB !== null) {
-
-    console.log(userObj)
     userObj = { ...userObj, count: userOfDB.count + 1 }
-    console.log(userObj)
     let res = await userCollectionObject.updateOne(
       { currentDate: userObj.currentDate },
       { $set: { ...userObj } }
     );
+    
+    //response.send({ message: "Message Sentvhgvghhgfhj" });
   }
   //if user not existed add new
   else {
     await userCollectionObject.insertOne(userObj);
+   // response.send({ message: "Message Sent" });
     //send res
   }
+
 });
 
 
