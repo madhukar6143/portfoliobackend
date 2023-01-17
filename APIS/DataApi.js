@@ -61,7 +61,7 @@ userApp.get("/data", async (request, res) => {
   //send res
   userApp.use(requestIp.mw());
   const clientIp = await request.clientIp;
-  let info = await ipfetch.getLocationNpm("124.123.186.218");
+  let info = await ipfetch.getLocationNpm(clientIp);
   
   reqObj =
   {
@@ -78,11 +78,12 @@ userApp.get("/data", async (request, res) => {
   }
   try {
       let response = await locationCollection.insertOne(reqObj);
+      
+  res.send({ message: "users data", payload: "191.451.12.12" })
   } catch (e) {
       console.log("error in insertion", e);
+      
   }
-
-  res.send({ message:clientIp})
 });
 
 
