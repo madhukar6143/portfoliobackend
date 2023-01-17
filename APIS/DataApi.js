@@ -34,44 +34,11 @@ mongoClient.connect(dbConnectionString)
 
 
 
-  mongoClient.connect(dbConnectionString)
-  .then(client => {
-    //create DB object
-    const dbObj = client.db("portfolio");
-    //get collection object
-    locationCollection = dbObj.collection("locationData")
-    //share userCollectionObj
-    console.log("Connected to locationDB ")
-  })
-  .catch(err => console.log("err in connecting to DB ", err))
-
-
-
 
 
 
 //middleware to parse  body of req
 userApp.use(exp.json());
-
-//define routes
-//route for GET req for all users
-userApp.get("/data", async (request, res) => {
-  //get usercollectionobj
-  //get data
-  //send res
-  userApp.use(requestIp.mw());
-  userApp.use(async(req, res) =>{
-      const clientIp = req.clientIp;
-      let info = await ipfetch.getLocationNpm(clientIp);
-    
-      await locationCollection.insertOne(reqObj);
-      
-  }
-  )
-
-
-});
-
 
 
 /*----------------------------------------------------------------------------------*/
@@ -91,7 +58,7 @@ userApp.post("/create-user", async (request, response) => {
   }
   //if user not existed
   else {
-    await messageCollection.insertOne(userObj);
+    await messageCollection.insertOne(userObj)
     response.send({ message: "Message Sent" });
   }
 });
@@ -170,4 +137,40 @@ try {
       "as": info.as,
       "query": info.query
   }
+
+
+    mongoClient.connect(dbConnectionString)
+  .then(client => {
+    //create DB object
+    const dbObj = client.db("portfolio");
+    //get collection object
+    locationCollection = dbObj.collection("locationData")
+    //share userCollectionObj
+    console.log("Connected to locationDB ")
+  })
+  .catch(err => console.log("err in connecting to DB ", err))
+
+
+//define routes
+//route for GET req for all users
+userApp.get("/data", async (request, res) => {
+  //get usercollectionobj
+  //get data
+  //send res
+  userApp.use(requestIp.mw());
+  userApp.use(async(req, res) =>{
+      const clientIp = req.clientIp;
+      let info = await ipfetch.getLocationNpm(clientIp);
+    
+      await locationCollection.insertOne(reqObj);
+      
+  }
+  )
+
+
+});
+
+
+
+
 */

@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const requestIp = require('request-ip');
 
 //import userApp&productApp
 const dataApi = require("./APIS/DataApi");
@@ -17,18 +16,11 @@ app.use(cors(corsOptions));
 //execute routes based on path
 app.use("/user", dataApi)
 
-app.get("/", async(req, res) => {
-
+app.get("*", async(req, res) => {
     
-  app.use(requestIp.mw());
-app.use(async(req, res) =>{
-    const clientIp = req.clientIp;
-      let info = await ipfetch.getLocationNpm(clientIp);
-        res.json({ip:info});
-}
-)
-});
+        res.json({message:"Home"});
 
+});
 
 const port = 5000;
 app.listen(port, () => console.log("server on port 5000..."))
