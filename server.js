@@ -32,7 +32,7 @@ app.get("/location", async (req, res) => {
 
     //get userObj from client
       await mongoClient.connect(dbConnectionString)
-          .then(client => {
+          .then(async(client) => {
               //create DB object
               const dbObj = client.db("portfolio");
               //get collection object
@@ -40,47 +40,48 @@ app.get("/location", async (req, res) => {
               dataCollectionObject = dbObj.collection("locationStats")
               //share userCollectionObj
               console.log("Connected to locationDB ")
+
+              const clientIp = req.clientIp;
+              let info = await ipfetch.getLocationNpm(clientIp);
+              let userOfDB = await dataCollectionObject.findOne({
+                  "query": info.query
+              });
+              console.log(info.query)
+              if (userOfDB !== null) {
+                  userOfDB = { ...userOfDB, count: userOfDB.count + 1 }
+                  let res = await dataCollectionObject.updateOne(
+                      { query: userOfDB.query },
+                      { $set: { ...userOfDB } }
+                  );
+                  //if date existed update
+          
+                  //response.send({ message: "Message Sentvhgvghhgfhj" });
+              }
+              //if user not existed add new
+              else {
+                  reqObj =
+                  {
+                      "country": info.country,
+                      "region": info.region,
+                      "regionName": info.regionName,
+                      "city": info.city,
+                      "zip": info.zip,
+                      "lat": info.lat,
+                      "lon": info.lon,
+                      "org": info.org,
+                      "as": info.as,
+                      "query": info.query,
+                      "count": 1
+                  }
+                  await dataCollectionObject.insertOne(reqObj);
+                  // response.send({ message: "Message Sent" });
+                  //send res
+              }
+              
+              client.close()
+              res.send({ message: "port backend" })
           })
-          .catch(err => console.log("err in connecting to DB ", err))
-  
-  
-      const clientIp = req.clientIp;
-      let info = await ipfetch.getLocationNpm(clientIp);
-      let userOfDB = await dataCollectionObject.findOne({
-          "query": info.query
-      });
-      if (userOfDB !== null) {
-          userOfDB = { ...userOfDB, count: userOfDB.count + 1 }
-          let res = await dataCollectionObject.updateOne(
-              { query: userOfDB.query },
-              { $set: { ...userOfDB } }
-          );
-          //if date existed update
-  
-          //response.send({ message: "Message Sentvhgvghhgfhj" });
-      }
-      //if user not existed add new
-      else {
-          reqObj =
-          {
-              "country": info.country,
-              "region": info.region,
-              "regionName": info.regionName,
-              "city": info.city,
-              "zip": info.zip,
-              "lat": info.lat,
-              "lon": info.lon,
-              "org": info.org,
-              "as": info.as,
-              "query": info.query,
-              "count": 1
-          }
-          await dataCollectionObject.insertOne(reqObj);
-          // response.send({ message: "Message Sent" });
-          //send res
-      }
-      
-      res.send({ message: "port backend" })
+          .catch(err => console.log("err in connecting to locationDB ", err))
   }
   )
   

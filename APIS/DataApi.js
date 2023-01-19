@@ -3,106 +3,94 @@ const userApp = exp.Router();
 const requestIp = require('request-ip');
 const ipfetch = require('ip-fetch');
 const mongoClient = require('mongodb').MongoClient;
-const dbConnectionString  = "mongodb+srv://madhu:madhu@clusterbackend.szevd.mongodb.net/myfirstdb?retryWrites=true&w=majority"
+const dbConnectionString = "mongodb+srv://madhu:madhu@clusterbackend.szevd.mongodb.net/myfirstdb?retryWrites=true&w=majority"
 let messageCollection, countCollection, locationCollection;
-
-
-mongoClient.connect(dbConnectionString)
-  .then(client => {
-    //create DB object
-    const dbObj = client.db("portfolio");
-    //get collection object
-    messageCollection = dbObj.collection("messageData")
-    //share userCollectionObj
-    console.log("Connected to messageDB ")
-  })
-  .catch(err => console.log("err in connecting to DB ", err))
-
-
-
-  mongoClient.connect(dbConnectionString)
-  .then(client => {
-    //create DB object
-    const dbObj = client.db("portfolio");
-    //get collection object
-    
-    countCollection = dbObj.collection("track")
-    //share userCollectionObj
-    console.log("Connected to dataDB ")
-  })
-  .catch(err => console.log("err in connecting to DB ", err))
-
-
-
-
 
 
 //middleware to parse  body of req
 userApp.use(exp.json());
 
 
-
-
 /*----------------------------------------------------------------------------------*/
 //route for POST req
 userApp.post("/create-user", async (request, response) => {
-  //get usercollectionobj
-  //get userObj from client
-  let userObj = await request.body;
-  //verify existing user
-  let userOfDB = await messageCollection.findOne({
-    username: userObj.username,
-  });
 
-  //if user existed
-  if (userOfDB !== null) {
-    response.send({ message: "Duplicate Data" });
-  }
-  //if user not existed
-  else {
-    await messageCollection.insertOne(userObj)
-    response.send({ message: "Message Sent" });
-  }
+  await mongoClient.connect(dbConnectionString)
+    .then(async (client) => {
+      //create DB object
+      const dbObj = client.db("portfolio");
+      //get collection object
+      messageCollection = dbObj.collection("messageData")
+      //share userCollectionObj
+      console.log("Connected to messageDB ")
+
+      let userObj = await request.body;
+      //verify existing user
+      let userOfDB = await messageCollection.findOne({
+        username: userObj.username,
+      });
+
+      //if user existed
+      if (userOfDB !== null) {
+        response.send({ message: "Duplicate Data" });
+      }
+      //if user not existed
+      else {
+        await messageCollection.insertOne(userObj)
+        response.send({ message: "Message Sent" });
+      }
+      client.close();
+    })
+    .catch(err => console.log("err in connecting  to messageDB ", err))
+
+
+
 });
 /*----------------------------------------------------------------------------------*/
 
 
-
-
-
-/*----------------------------------------------------------------------------------*/
 userApp.post("/track", async (request, response) => {
 
-  //get userObj from client
-  let userObj = await request.body;
+  mongoClient.connect(dbConnectionString)
+    .then(async (client) => {
+      //create DB object
+      const dbObj = await client.db("portfolio");
+      //get collection object
+      countCollection = await dbObj.collection("track")
+      console.log("Connected to dataDB ")
 
-  //verify existing date
-  let userOfDB = await countCollection.findOne({
-    currentDate: userObj.currentDate
-  });
+      //get userObj from client
+      let userObj = await request.body;
 
-  //if date existed update
-  if (userOfDB !== null) {
-    userObj = { ...userObj, count: userOfDB.count + 1 }
-    let res = await countCollection.updateOne(
-      { currentDate: userObj.currentDate },
-      { $set: { ...userObj } }
-    );
+      //verify existing date
+      let userOfDB = await countCollection.findOne({
+        currentDate: userObj.currentDate
+      });
 
-    //response.send({ message: "Message Sentvhgvghhgfhj" });
-  }
-  //if user not existed add new
-  else {
-    await countCollection.insertOne(userObj);
-    // response.send({ message: "Message Sent" });
-    //send res
-  }
+      //if date existed update
+      if (userOfDB !== null) {
+        userObj = { ...userObj, count: userOfDB.count + 1 }
+        let res = await countCollection.updateOne(
+          { currentDate: userObj.currentDate },
+          { $set: { ...userObj } }
+        );
+
+        //response.send({ message: "Message Sentvhgvghhgfhj" });
+      }
+      //if user not existed add new
+      else {
+        await countCollection.insertOne(userObj);
+        // response.send({ message: "Message Sent" });
+        //send res
+      }
+      client.close();
+    })
+    .catch(err => console.log("err in connecting to trackDB ", err))
+
 
 });
 
 /*----------------------------------------------------------------------------------*/
-
-
 
 
 //export userApp
