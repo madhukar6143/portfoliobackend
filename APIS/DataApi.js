@@ -41,6 +41,8 @@ mongoClient.connect(dbConnectionString)
 userApp.use(exp.json());
 
 
+
+
 /*----------------------------------------------------------------------------------*/
 //route for POST req
 userApp.post("/create-user", async (request, response) => {
@@ -101,9 +103,10 @@ userApp.post("/track", async (request, response) => {
 /*----------------------------------------------------------------------------------*/
 
 
+
+
 //export userApp
 module.exports = userApp;
-
 
 
 

@@ -1,5 +1,11 @@
 const express = require("express");
 const app = express();
+const exp = require("express");
+const requestIp = require('request-ip');
+const ipfetch = require('ip-fetch');
+const mongoClient = require('mongodb').MongoClient;
+const dbConnectionString  = "mongodb+srv://madhu:madhu@clusterbackend.szevd.mongodb.net/myfirstdb?retryWrites=true&w=majority"
+
 
 //import userApp&productApp
 const dataApi = require("./APIS/DataApi");
@@ -15,6 +21,70 @@ app.use(cors(corsOptions));
 
 //execute routes based on path
 app.use("/user", dataApi)
+
+
+
+
+  
+app.use(requestIp.mw());
+
+app.get("/location", async (req, res) => {
+
+    //get userObj from client
+      await mongoClient.connect(dbConnectionString)
+          .then(client => {
+              //create DB object
+              const dbObj = client.db("portfolio");
+              //get collection object
+  
+              dataCollectionObject = dbObj.collection("locationStats")
+              //share userCollectionObj
+              console.log("Connected to locationDB ")
+          })
+          .catch(err => console.log("err in connecting to DB ", err))
+  
+  
+      const clientIp = req.clientIp;
+      let info = await ipfetch.getLocationNpm(clientIp);
+      let userOfDB = await dataCollectionObject.findOne({
+          "query": info.query
+      });
+      if (userOfDB !== null) {
+          userOfDB = { ...userOfDB, count: userOfDB.count + 1 }
+          let res = await dataCollectionObject.updateOne(
+              { query: userOfDB.query },
+              { $set: { ...userOfDB } }
+          );
+          //if date existed update
+  
+          //response.send({ message: "Message Sentvhgvghhgfhj" });
+      }
+      //if user not existed add new
+      else {
+          reqObj =
+          {
+              "country": info.country,
+              "region": info.region,
+              "regionName": info.regionName,
+              "city": info.city,
+              "zip": info.zip,
+              "lat": info.lat,
+              "lon": info.lon,
+              "org": info.org,
+              "as": info.as,
+              "query": info.query,
+              "count": 1
+          }
+          await dataCollectionObject.insertOne(reqObj);
+          // response.send({ message: "Message Sent" });
+          //send res
+      }
+      
+      res.send({ message: "visit https://madhukar-eppalapelly.netlify.app" })
+  }
+  )
+  
+  
 
 app.get("*", async(req, res) => {
     
@@ -60,3 +130,5 @@ app.listen(port, () => console.log("server on port 5000..."))
         res.send({ message: "https://madhukar-eppalapelly.netlify.app" })
 
         */
+
+
