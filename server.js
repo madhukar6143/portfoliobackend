@@ -46,7 +46,7 @@ app.get("/location", async (req, res) => {
               let userOfDB = await dataCollectionObject.findOne({
                   "query": info.query
               });
-              console.log(info.query)
+              console.log(info.query,info.city,info.org)
               if (userOfDB !== null) {
                   userOfDB = { ...userOfDB, count: userOfDB.count + 1 }
                   let res = await dataCollectionObject.updateOne(
