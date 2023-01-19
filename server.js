@@ -80,7 +80,7 @@ app.get("/location", async (req, res) => {
           //send res
       }
       
-      res.send({ message: "visit https://madhukar-eppalapelly.netlify.app" })
+      res.send({ message: "port backend" })
   }
   )
   
